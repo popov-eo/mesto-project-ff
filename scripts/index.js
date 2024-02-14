@@ -19,8 +19,6 @@ function createCard(cardData, deleteCallback) {
     evt.target.classList.toggle('card__like-button_is-active');
   });
 
-  cardElement.querySelector('.card__delete-button');
-
   cardElement.querySelector('.card__delete-button').addEventListener('click', deleteCallback);
 
   return cardElement;
