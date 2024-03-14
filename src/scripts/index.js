@@ -2,7 +2,6 @@ import '../pages/index.css';
 import '../scripts/cards.js';
 import {
     cardsContainer,
-    popups,
     popupEdit,
     popupAdd,
     editButton,
