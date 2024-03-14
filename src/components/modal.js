@@ -1,64 +1,36 @@
-import {
-    popupEdit,
-    popupAdd,
-    popupImage,
-    editButton,
-    addButton,
-    closeButtonEdit,
-    closeButtonImg,
-    nameInput,
-    jobInput
-} from '../components/variables.js';
+import { popups } from '../components/classVariables.js';
 
-function openPopup(openButton) {
-    if (openButton === editButton) {
-        popupEdit.classList.add('popup_is-opened');
-    } else if (openButton === addButton) {
-        popupAdd.classList.add('popup_is-opened');
+function openPopup(popup) {
+    popup.classList.add('popup_is-opened');
+    document.addEventListener('keydown', closeByEsc);
+}
+
+function closePopup(popup) {
+    popup.classList.remove('popup_is-opened');
+    document.removeEventListener('keydown', closeByEsc);
+}
+
+function closeByEsc(evt) {
+    const openedPopup = document.querySelector('.popup_is-opened');
+    if (evt.key === 'Escape') {
+        closePopup(openedPopup);
     }
-};
-
-function closePopup(closeButton) {
-    const parent = closeButton.parentElement.parentElement;
-    parent.classList.remove('popup_is-opened');
-};
-
-// form EditUser
-
-nameInput.value = document.querySelector('.profile__title').textContent;
-jobInput.value = document.querySelector('.profile__description').textContent;
-
-function handleFormSubmit(evt) {
-    evt.preventDefault();
-
-    const nameValue = nameInput.value;
-    const jobValue = jobInput.value;
-
-    const profileTitle = document.querySelector('.profile__title');
-    const profileDescription = document.querySelector('.profile__description');
-
-    profileTitle.textContent = nameValue;
-    profileDescription.textContent = jobValue;
-
-    closePopup(closeButtonEdit);
 }
 
-// form openImage
+popups.forEach((popup) => {
+    popup.classList.add('popup_is-animated');
 
-function popupImageOpen(imgElement, data, altText) {
-    imgElement.addEventListener('click', () => {
-        popupImage.classList.add('popup_is-opened');
-        popupImage.querySelector('.popup__image').src = data;
-        popupImage.querySelector('.popup__caption').textContent = altText;
-        closeButtonImg.addEventListener('click', () => {
-            popupImage.classList.remove('popup_is-opened');
-        })
-        document.addEventListener('keydown', (evt) => {
-            if (evt.key === 'Escape') {
-                popupImage.classList.remove('popup_is-opened');
-            }
-        })
+    popup.addEventListener('click', (evt) => {
+        const contentClick = evt.target.closest('.popup__content');
+
+        if (!contentClick) {
+            closePopup(popup);
+        }
     })
-}
 
-export { handleFormSubmit, openPopup, closePopup, popupImageOpen }
+    popup.querySelector('.popup__close').addEventListener('click', () => {
+        closePopup(popup);
+    })
+})
+
+export { openPopup, closePopup }
