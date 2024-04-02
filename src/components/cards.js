@@ -1,82 +1,30 @@
-import { apiConfig, profileId } from '../components/api.js';
+import {
+    deleteCardInServer,
+    deleteLikeInServer,
+    putLikeInServer
+} from '../components/api.js';
 
 function likeCard(evt, cardData, cardElement) {
-    const isLiked = cardElement.querySelector('.card__like-button').classList.contains('card__like-button_is-active');
+    const isLiked = cardElement.querySelector('.card__like-button')
+    .classList.contains('card__like-button_is-active');
 
     evt.target.classList.toggle('card__like-button_is-active');
 
     if (isLiked) {
-        fetch(`${apiConfig.baseUrl}/cards/likes/${cardData._id}`, {
-            method: 'DELETE',
-            headers: {
-                authorization: `${apiConfig.headers.authorization}`,
-                'Content-Type': `${apiConfig.headers['Content-Type']}`
-            }
-        })
-        .then(res => {
-            if (res.ok) {
-                return res.json();
-            }
-
-            return Promise.reject(`Ошибка: ${res.status}`);
-        })
-        .then((data) => {
-            cardElement.querySelector('.card__like-count').textContent = data.likes.length;
-        })
-        .catch((err) => {
-            console.log(err);
-        })
+        deleteLikeInServer(cardData, cardElement);
     } else {
-        fetch(`${apiConfig.baseUrl}/cards/likes/${cardData._id}`, {
-            method: 'PUT',
-            headers: {
-                authorization: `${apiConfig.headers.authorization}`,
-                'Content-Type': `${apiConfig.headers['Content-Type']}`
-            },
-            body: JSON.stringify({
-                likes: `${cardData.owner}`
-            })
-        })
-        .then(res => {
-            if (res.ok) {
-                return res.json();
-            }
-
-            return Promise.reject(`Ошибка: ${res.status}`);
-        })
-        .then((data) => {
-            cardElement.querySelector('.card__like-count').textContent = data.likes.length;
-        })
-        .catch((err) => {
-            console.log(err);
-        })
+        putLikeInServer(cardData, cardElement);
     }
-
 }
 
 function deleteCard(evt, cardData) {
     const listItem = evt.target.closest('.card');
     listItem.remove();
 
-    fetch(`${apiConfig.baseUrl}/cards/${cardData._id}`, {
-        method: 'DELETE',
-        headers: {
-            authorization: `${apiConfig.headers.authorization}`
-        }
-    })
-    .then(res => {
-        if (res.ok) {
-            return res.json();
-        }
-
-        return Promise.reject(`Ошибка: ${res.status}`);
-    })
-    .catch((err) => {
-        console.log(err);
-    })
+    deleteCardInServer(cardData);
 }
 
-function searchMyProfileLike(cardData, cardElement) {
+function searchMyProfileLike(cardData, cardElement, profileId) {
     cardData.likes.forEach((user) => {
         if (user._id === profileId) {
             return cardElement.querySelector('.card__like-button').classList.add('card__like-button_is-active');
@@ -86,7 +34,13 @@ function searchMyProfileLike(cardData, cardElement) {
     })
 }
 
-function createCard(cardData, deleteCallback, likeCardCallback, popupImageCallback, searchMyProfileLikeCallback) {
+function createCard(
+    cardData,
+    deleteCallback,
+    likeCardCallback,
+    popupImageCallback,
+    searchMyProfileLikeCallback,
+    profileId) {
     const cardTemplate = document.querySelector('#card-template').content;
     const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
 
@@ -104,19 +58,19 @@ function createCard(cardData, deleteCallback, likeCardCallback, popupImageCallba
         cardElement.querySelector('.card__delete-button').disabled = true;
     }
 
-    searchMyProfileLikeCallback(cardData, cardElement);
+    searchMyProfileLikeCallback(cardData, cardElement, profileId);
 
     cardElement.querySelector('.card__image').addEventListener('click', () => {
         popupImageCallback(cardData);
-    });
+    })
 
     cardElement.querySelector('.card__like-button').addEventListener('click', (evt) => {
         likeCardCallback(evt, cardData, cardElement);
-    });
+    })
 
     cardElement.querySelector('.card__delete-button').addEventListener('click', (evt) => {
         deleteCallback(evt, cardData);
-    });
+    })
 
     return cardElement;
 }

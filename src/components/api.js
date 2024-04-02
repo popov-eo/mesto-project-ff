@@ -6,7 +6,13 @@ const apiConfig = {
     }
 }
 
-const profileId = '89188d4a989569994e21b11a';
+function handleResponse(res) {
+        if (res.ok) {
+        return res.json();
+    }
+
+    return Promise.reject(`Ошибка: ${res.status}`);
+}
 
 const updateProfile = fetch(`${apiConfig.baseUrl}/users/me`, {
     method: 'GET',
@@ -14,14 +20,7 @@ const updateProfile = fetch(`${apiConfig.baseUrl}/users/me`, {
         authorization: `${apiConfig.headers.authorization}`
     }
 })
-.then(res => {
-
-    if (res.ok) {
-        return res.json();
-    }
-
-    return Promise.reject(`Ошибка: ${res.status}`);
-})
+.then(res => handleResponse(res))
 
 const updateCards = fetch(`${apiConfig.baseUrl}/cards`, {
     method: 'GET',
@@ -29,14 +28,134 @@ const updateCards = fetch(`${apiConfig.baseUrl}/cards`, {
         authorization: `${apiConfig.headers.authorization}`
     }
 })
-.then(res => {
-    if (res.ok) {
-        return res.json();
-    }
+.then(res => handleResponse(res))
 
-    return Promise.reject(`Ошибка: ${res.status}`);
-})
+function editProfileInServer(name, job, title, description, renderLoadingCallback, popup) {
+    fetch(`${apiConfig.baseUrl}/users/me`, {
+        method: 'PATCH',
+        headers: {
+            authorization: `${apiConfig.headers.authorization}`,
+            'Content-Type': `${apiConfig.headers['Content-Type']}`
+        },
+        body: JSON.stringify({
+            name: name,
+            about: job
+        })
+    })
+    .then(res => handleResponse(res))
+    .then(data => {
+        title.textContent = data.name;
+        description.textContent = data.about;
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+    .finally(() => renderLoadingCallback(popup, false))
+}
 
-export { apiConfig, profileId, updateProfile, updateCards }
+function addCardInServer(newCard, container, renderLoadingCallback, popup, createCardCallback, deleteCard, likeCard, openPopupImage, searchMyProfileLike) {
+    fetch(`${apiConfig.baseUrl}/cards`, {
+        method: 'POST',
+        headers: {
+            authorization: `${apiConfig.headers.authorization}`,
+            'Content-Type': `${apiConfig.headers['Content-Type']}`
+        },
+        body: JSON.stringify({
+            name: newCard.name,
+            link: newCard.link
+        })
+    })
+    .then(res => handleResponse(res))
+    .then(data => {
+        container.prepend(createCardCallback(data, deleteCard, likeCard, openPopupImage, searchMyProfileLike));
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+    .finally(() => {renderLoadingCallback(popup, false)})
+}
+
+function changeAvatarInServer(avatarUrl, button, renderLoadingCallback, popup) {
+    fetch(`${apiConfig.baseUrl}/users/me/avatar`, {
+        method: 'PATCH',
+        headers: {
+            authorization: `${apiConfig.headers.authorization}`,
+            'Content-Type': `${apiConfig.headers['Content-Type']}`
+        },
+        body: JSON.stringify({
+            avatar: avatarUrl
+        })
+    })
+    .then(res => handleResponse(res))
+    .then((data) => {
+        button.style.backgroundImage = `url(${data.avatar})`;
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+    .finally(() => {renderLoadingCallback(popup, false);})
+}
+
+function deleteCardInServer(cardInformation) {
+    fetch(`${apiConfig.baseUrl}/cards/${cardInformation._id}`, {
+        method: 'DELETE',
+        headers: {
+            authorization: `${apiConfig.headers.authorization}`
+        }
+    })
+    .then(res => handleResponse(res))
+    .catch((err) => {
+        console.log(err);
+    })
+}
+
+function deleteLikeInServer(cardData, cardElement) {
+    fetch(`${apiConfig.baseUrl}/cards/likes/${cardData._id}`, {
+        method: 'DELETE',
+        headers: {
+            authorization: `${apiConfig.headers.authorization}`,
+            'Content-Type': `${apiConfig.headers['Content-Type']}`
+        }
+    })
+    .then(res => handleResponse(res))
+    .then((data) => {
+        cardElement.querySelector('.card__like-count').textContent = data.likes.length;
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+}
+
+function putLikeInServer(cardData, cardElement) {
+    fetch(`${apiConfig.baseUrl}/cards/likes/${cardData._id}`, {
+        method: 'PUT',
+        headers: {
+            authorization: `${apiConfig.headers.authorization}`,
+            'Content-Type': `${apiConfig.headers['Content-Type']}`
+        },
+        body: JSON.stringify({
+            likes: `${cardData.owner}`
+        })
+    })
+    .then(res => handleResponse(res))
+    .then((data) => {
+        cardElement.querySelector('.card__like-count').textContent = data.likes.length;
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+}
+
+export {
+    apiConfig,
+    updateProfile,
+    updateCards,
+    editProfileInServer,
+    addCardInServer,
+    changeAvatarInServer,
+    deleteCardInServer,
+    deleteLikeInServer,
+    putLikeInServer
+}
 
 
