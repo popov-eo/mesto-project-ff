@@ -4,7 +4,7 @@ import {
     deleteCard,
     likeCard,
     searchMyProfileLike
-} from '../components/cards.js';
+} from '../components/card.js';
 import {
     openPopup,
     closePopup
@@ -76,7 +76,7 @@ Promise.all([updateProfile, updateCards])
             openPopupImage,
             searchMyProfileLike,
             profileId)
-        );
+        )
     })
 })
 .catch((err) => {
@@ -87,7 +87,7 @@ function openPopupImage(data) {
     openPopup(popupImage);
     imageFullSize.src = data.link;
     imageFullSize.alt = data.name;
-    captionImage.textContent = data.name;
+    captionImage.textContent = data.name
 }
 
 function handleFormSubmit(evt) {
@@ -99,14 +99,16 @@ function handleFormSubmit(evt) {
 
     editProfileInServer(
         nameValue,
-        jobValue,
-        profileTitle,
-        profileDescription,
-        renderLoading,
-        popupEdit
-    );
+        jobValue
+    )
+    .then(data => {
+        profileTitle.textContent = data.name;
+        profileDescription.textContent = data.about;
+    })
+    .catch(err => console.log(err))
+    .finally(() => renderLoading(popupEdit, false));
 
-    closePopup(popupEdit);
+    closePopup(popupEdit)
 }
 
 enableValidation(validationConfig);
@@ -119,12 +121,12 @@ popups.forEach((popup) => {
         const contentClick = evt.target.closest('.popup__content');
 
         if (!contentClick) {
-            closePopup(popup);
+            closePopup(popup)
         }
     })
 
     popup.querySelector('.popup__close').addEventListener('click', () => {
-        closePopup(popup);
+        closePopup(popup)
     })
 })
 
@@ -140,7 +142,7 @@ editButton.addEventListener('click', () => {
     clearValidation(popupEdit, validationConfig);
 
     nameInput.value = profileTitle.textContent;
-    jobInput.value = profileDescription.textContent;
+    jobInput.value = profileDescription.textContent
 })
 
 formElementEdit.addEventListener('submit', handleFormSubmit);
@@ -148,13 +150,13 @@ formElementEdit.addEventListener('submit', handleFormSubmit);
 addButton.addEventListener('click', () => {
     openPopup(popupAdd);
 
-    clearValidation(popupAdd, validationConfig);
+    clearValidation(popupAdd, validationConfig)
 })
 
 formElementAdd.addEventListener('submit', (evt) => {
     evt.preventDefault();
 
-    renderLoading(popupAdd, true)
+    renderLoading(popupAdd, true);
 
     const newCardObj = {};
 
@@ -163,21 +165,23 @@ formElementAdd.addEventListener('submit', (evt) => {
 
     addCardInServer(
         newCardObj,
-        cardsContainer,
-        renderLoading,
-        popupAdd,
-        createCard,
         deleteCard,
         likeCard,
         openPopupImage,
-        searchMyProfileLike
-    );
+        searchMyProfileLike,
+        profileId
+    )
+    .then(data => {
+        cardsContainer.prepend(createCard(data, deleteCard, likeCard, openPopupImage, searchMyProfileLike, profileId))
+    })
+    .catch(err => console.log(err))
+    .finally(() => renderLoading(popupAdd, false))
 
     formElementAdd.reset();
 
     clearValidation(popupAdd, validationConfig);
 
-    closePopup(popupAdd);
+    closePopup(popupAdd)
 })
 
 function submitAvatarLink(evt) {
@@ -186,14 +190,14 @@ function submitAvatarLink(evt) {
 
     const avatarValue = avatarInput.value;
 
-    changeAvatarInServer(
-        avatarValue,
-        avatarButton,
-        renderLoading,
-        popupAvatar
-    );
+    changeAvatarInServer(avatarValue)
+    .then((data) => {
+        avatarButton.style.backgroundImage = `url(${data.avatar})`
+    })
+    .catch(err => console.log(err))
+    .finally(() => renderLoading(popupAvatar, false));
 
-    closePopup(popupAvatar);
+    closePopup(popupAvatar)
 }
 
 formElementAvatar.addEventListener('submit', submitAvatarLink);
@@ -203,7 +207,7 @@ function renderLoading(popup, isLoading) {
     if (isLoading) {
         submitButton.textContent = 'Сохранение...';
     } else {
-        submitButton.textContent = 'Сохранить';
+        submitButton.textContent = 'Сохранить'
     }
 }
 

@@ -116,7 +116,7 @@ function clearValidation(popup, config) {
         )
     })
 
-    makeButtonStateActive(buttonElement, config.inactiveButtonClass);
+    makeButtonStateInactive(buttonElement, config.inactiveButtonClass);
 }
 
 export { enableValidation, clearValidation }

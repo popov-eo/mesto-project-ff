@@ -30,8 +30,8 @@ const updateCards = fetch(`${apiConfig.baseUrl}/cards`, {
 })
 .then(res => handleResponse(res))
 
-function editProfileInServer(name, job, title, description, renderLoadingCallback, popup) {
-    fetch(`${apiConfig.baseUrl}/users/me`, {
+async function editProfileInServer(name, job) {
+    return fetch(`${apiConfig.baseUrl}/users/me`, {
         method: 'PATCH',
         headers: {
             authorization: `${apiConfig.headers.authorization}`,
@@ -43,18 +43,10 @@ function editProfileInServer(name, job, title, description, renderLoadingCallbac
         })
     })
     .then(res => handleResponse(res))
-    .then(data => {
-        title.textContent = data.name;
-        description.textContent = data.about;
-    })
-    .catch((err) => {
-        console.log(err);
-    })
-    .finally(() => renderLoadingCallback(popup, false))
 }
 
-function addCardInServer(newCard, container, renderLoadingCallback, popup, createCardCallback, deleteCard, likeCard, openPopupImage, searchMyProfileLike) {
-    fetch(`${apiConfig.baseUrl}/cards`, {
+async function addCardInServer(newCard) {
+    return fetch(`${apiConfig.baseUrl}/cards`, {
         method: 'POST',
         headers: {
             authorization: `${apiConfig.headers.authorization}`,
@@ -66,17 +58,10 @@ function addCardInServer(newCard, container, renderLoadingCallback, popup, creat
         })
     })
     .then(res => handleResponse(res))
-    .then(data => {
-        container.prepend(createCardCallback(data, deleteCard, likeCard, openPopupImage, searchMyProfileLike));
-    })
-    .catch((err) => {
-        console.log(err);
-    })
-    .finally(() => {renderLoadingCallback(popup, false)})
 }
 
-function changeAvatarInServer(avatarUrl, button, renderLoadingCallback, popup) {
-    fetch(`${apiConfig.baseUrl}/users/me/avatar`, {
+async function changeAvatarInServer(avatarUrl) {
+    return fetch(`${apiConfig.baseUrl}/users/me/avatar`, {
         method: 'PATCH',
         headers: {
             authorization: `${apiConfig.headers.authorization}`,
@@ -87,30 +72,20 @@ function changeAvatarInServer(avatarUrl, button, renderLoadingCallback, popup) {
         })
     })
     .then(res => handleResponse(res))
-    .then((data) => {
-        button.style.backgroundImage = `url(${data.avatar})`;
-    })
-    .catch((err) => {
-        console.log(err);
-    })
-    .finally(() => {renderLoadingCallback(popup, false);})
 }
 
-function deleteCardInServer(cardInformation) {
-    fetch(`${apiConfig.baseUrl}/cards/${cardInformation._id}`, {
+async function deleteCardInServer(cardInformation) {
+    return fetch(`${apiConfig.baseUrl}/cards/${cardInformation._id}`, {
         method: 'DELETE',
         headers: {
             authorization: `${apiConfig.headers.authorization}`
         }
     })
     .then(res => handleResponse(res))
-    .catch((err) => {
-        console.log(err);
-    })
 }
 
-function deleteLikeInServer(cardData, cardElement) {
-    fetch(`${apiConfig.baseUrl}/cards/likes/${cardData._id}`, {
+async function deleteLikeInServer(cardData, cardElement) {
+    return fetch(`${apiConfig.baseUrl}/cards/likes/${cardData._id}`, {
         method: 'DELETE',
         headers: {
             authorization: `${apiConfig.headers.authorization}`,
@@ -118,16 +93,10 @@ function deleteLikeInServer(cardData, cardElement) {
         }
     })
     .then(res => handleResponse(res))
-    .then((data) => {
-        cardElement.querySelector('.card__like-count').textContent = data.likes.length;
-    })
-    .catch((err) => {
-        console.log(err);
-    })
 }
 
-function putLikeInServer(cardData, cardElement) {
-    fetch(`${apiConfig.baseUrl}/cards/likes/${cardData._id}`, {
+async function putLikeInServer(cardData) {
+    return fetch(`${apiConfig.baseUrl}/cards/likes/${cardData._id}`, {
         method: 'PUT',
         headers: {
             authorization: `${apiConfig.headers.authorization}`,
@@ -138,12 +107,6 @@ function putLikeInServer(cardData, cardElement) {
         })
     })
     .then(res => handleResponse(res))
-    .then((data) => {
-        cardElement.querySelector('.card__like-count').textContent = data.likes.length;
-    })
-    .catch((err) => {
-        console.log(err);
-    })
 }
 
 export {
